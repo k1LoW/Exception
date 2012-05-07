@@ -8,7 +8,7 @@ App::uses('ExceptionException', 'Exception.Error');
  */
 class ValidationException extends ExceptionException {
 
-    public function __construct($message = null, $code = 200) {
+    public function __construct($message = null, $code = 422) {
         if (empty($message)) {
             $message = __('Validation Error.');
         }
