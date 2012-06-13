@@ -58,6 +58,12 @@ class ExceptionNotifierComponent extends Component {
             $email->transport('Smtp');
             $email->config($this->smtpParams);
         }
+
+        // backward compatible
+        if (!empty($this->exceptionFrom[0])) {
+            $this->exceptionFrom = array($this->exceptionFrom[0] => $this->exceptionFrom[1]);
+        }
+
         $email->from($this->exceptionFrom)
         ->to($this->exceptionRecipients)
         ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . $this->_getUrl() . '] ' . $this->_exception->getMessage())
