@@ -69,6 +69,15 @@ class ExceptionNotifierComponent extends Component {
         ->to($this->exceptionRecipients)
         ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . $this->_getUrl() . '] ' . $this->_exception->getMessage())
         ->send($this->_getText());
+
+        // return Exception.handler
+        $config = Configure::read('Exception');
+        $handler = $config['handler'];
+        if (is_string($handler)) {
+            call_user_func($handler, $exception);
+        } elseif (is_array($handler)) {
+            call_user_func_array($handler, $exception);
+        }
     }
 
     public function handleError($code, $description, $file = null, $line = null, $context = null) {
