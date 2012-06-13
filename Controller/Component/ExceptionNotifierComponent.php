@@ -6,6 +6,7 @@
  */
 App::uses('Component', 'Controller');
 App::uses('CakeEmail', 'Network/Email');
+App::uses('ErrorHandler', 'Error');
 class ExceptionNotifierComponent extends Component {
 
     public $ERR_TYPE = array(
@@ -50,8 +51,8 @@ class ExceptionNotifierComponent extends Component {
         }
     }
 
-    public function handleException($e) {
-        $this->_exception = $e;
+    public function handleException(Exception $exception) {
+        $this->_exception = $exception;
 
         $email = new CakeEmail();
         if ($this->useSmtp) {
@@ -70,10 +71,11 @@ class ExceptionNotifierComponent extends Component {
         ->send($this->_getText());
     }
 
-    public function handleError($errno, $errstr, $errfile, $errline, $errcontext) {
+    public function handleError($code, $description, $file = null, $line = null, $context = null) {
         $cakePath = CAKE_CORE_INCLUDE_PATH . DS . CAKE;
-        if (error_reporting() && !preg_match('!^' . $cakePath . '!', $errfile)) {
-            $this->handleException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
+        if (ErrorHandler::handleError($code, $description, $file, $line, $context) !== false && !preg_match('!^' . $cakePath . '!', $file)) {
+            $this->handleException(new ErrorException($description, 0, $code, $file, $line));
+            return true;
         }
         return false;
     }
