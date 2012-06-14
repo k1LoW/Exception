@@ -62,6 +62,9 @@ class ExceptionNotifierComponent extends Component {
 
         // backward compatible
         if (!empty($this->exceptionFrom[0])) {
+            if (empty($this->exceptionFrom[1])) {
+                $this->exceptionFrom[1] =  $this->exceptionFrom[0];
+            }
             $this->exceptionFrom = array($this->exceptionFrom[0] => $this->exceptionFrom[1]);
         }
 
