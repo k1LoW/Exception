@@ -31,6 +31,8 @@ class ExceptionNotifierComponent extends Component {
     public $observeWarning = true;
     public $observeStrict = false;
 
+    public $observeException = true;
+
     private $_controller;
     private $_exception;
 
@@ -102,7 +104,9 @@ class ExceptionNotifierComponent extends Component {
         }
 
         register_shutdown_function(array($this, 'handleShutdown'));
-        set_exception_handler(array($this, 'handleException'));
+        if ($this->observeException) {
+            set_exception_handler(array($this, 'handleException'));
+        }
 
         $errTypes = 0;
         if ($this->observeNotice) $errTypes = $errTypes | E_NOTICE;
