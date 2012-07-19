@@ -49,11 +49,11 @@ class ExceptionNotifierComponent extends Component {
         case E_CORE_WARNING:
         case E_COMPILE_ERROR:
         case E_COMPILE_WARNING:
-            $this->handleException(new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
+            $this->handleException(new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']), true);
         }
     }
 
-    public function handleException(Exception $exception) {
+    public function handleException(Exception $exception, $shutdown = false) {
         $this->_exception = $exception;
 
         $email = new CakeEmail();
@@ -71,17 +71,19 @@ class ExceptionNotifierComponent extends Component {
         }
 
         $email->from($this->exceptionFrom)
-        ->to($this->exceptionRecipients)
-        ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . $this->_getUrl() . '] ' . $this->_exception->getMessage())
-        ->send($this->_getText());
+            ->to($this->exceptionRecipients)
+            ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . $this->_getUrl() . '] ' . $this->_exception->getMessage())
+            ->send($this->_getText());
 
         // return Exception.handler
-        $config = Configure::read('Exception');
-        $handler = $config['handler'];
-        if (is_string($handler)) {
-            call_user_func($handler, $exception);
-        } elseif (is_array($handler)) {
-            call_user_func_array($handler, $exception);
+        if ($shutdown) {
+            $config = Configure::read('Exception');
+            $handler = $config['handler'];
+            if (is_string($handler)) {
+                call_user_func($handler, $exception);
+            } elseif (is_array($handler)) {
+                call_user_func_array($handler, $exception);
+            }
         }
     }
 
