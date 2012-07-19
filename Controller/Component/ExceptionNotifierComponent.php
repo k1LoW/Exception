@@ -55,7 +55,6 @@ class ExceptionNotifierComponent extends Component {
 
     public function handleException(Exception $exception, $shutdown = false) {
         $this->_exception = $exception;
-
         $email = new CakeEmail();
         if ($this->useSmtp) {
             $email->transport('Smtp');
@@ -76,7 +75,7 @@ class ExceptionNotifierComponent extends Component {
             ->send($this->_getText());
 
         // return Exception.handler
-        if ($shutdown) {
+        if ($shutdown || !($this->_exception instanceof ErrorException)) {
             $config = Configure::read('Exception');
             $handler = $config['handler'];
             if (is_string($handler)) {
