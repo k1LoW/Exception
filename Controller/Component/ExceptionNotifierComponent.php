@@ -7,6 +7,7 @@
 App::uses('Component', 'Controller');
 App::uses('CakeEmail', 'Network/Email');
 App::uses('ErrorHandler', 'Error');
+App::uses('ExceptionText', 'Exception.Lib');
 class ExceptionNotifierComponent extends Component {
 
     public $ERR_TYPE = array(
@@ -71,8 +72,8 @@ class ExceptionNotifierComponent extends Component {
 
         $email->from($this->exceptionFrom)
             ->to($this->exceptionRecipients)
-            ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . $this->_getUrl() . '] ' . $this->_exception->getMessage())
-            ->send($this->_getText());
+            ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . ExceptionText::getUrl() . '] ' . $this->_exception->getMessage())
+            ->send(ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine()));
 
         // return Exception.handler
         if ($shutdown || !($this->_exception instanceof ErrorException)) {
@@ -116,52 +117,6 @@ class ExceptionNotifierComponent extends Component {
         if ($errTypes) set_error_handler(array($this, 'handleError'), $errTypes);
     }
 
-    private function _getText() {
-        $e = $this->_exception;
-        $params = Router::getRequest();
-        $session = isset($_SESSION) ? $_SESSION : array();
-
-        $msg = array(
-                     $e->getMessage(),
-                     $e->getFile() . '(' . $e->getLine() . ')',
-                     '',
-                     '-------------------------------',
-                     'Request:',
-                     '-------------------------------',
-                     '',
-                     '* URL       : ' . $this->_getUrl(),
-                     '* IP address: ' . env('REMOTE_ADDR'),
-                     '* Parameters: ' . trim(print_r($params, true)),
-                     '* Cake root : ' . APP,
-                     '',
-                     '-------------------------------',
-                     'Environment:',
-                     '-------------------------------',
-                     '',
-                     trim(print_r($_SERVER, true)),
-                     '',
-                     '-------------------------------',
-                     'Session:',
-                     '-------------------------------',
-                     '',
-                     trim(print_r($session, true)),
-                     '',
-                     '-------------------------------',
-                     'Cookie:',
-                     '-------------------------------',
-                     '',
-                     trim(print_r($_COOKIE, true)),
-                     '',
-                     '-------------------------------',
-                     'Backtrace:',
-                     '-------------------------------',
-                     '',
-                     $this->_exception->getTraceAsString()
-                     );
-
-        return join("\n", $msg);
-    }
-
     private function _getSeverityAsString() {
         if (!method_exists($this->_exception, 'getSeverity')) return 'ERROR';
 
@@ -169,8 +124,4 @@ class ExceptionNotifierComponent extends Component {
         return array_key_exists($errNo, $this->ERR_TYPE) ? $this->ERR_TYPE[$errNo] : "(errno: {$errNo})";
     }
 
-    private function _getUrl() {
-        $protocol = array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http';
-        return $protocol . '://' . env('HTTP_HOST') . env('REQUEST_URI');
-    }
 }
