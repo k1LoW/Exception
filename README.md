@@ -36,8 +36,9 @@ Add the following code in AppController.php
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
 
-## Contributors
+## Authors
 
+- [k1LoW](https://github.com/k1LoW);
 - [kozo](https://github.com/kozo);
 
 ## License
