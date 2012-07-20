@@ -1,4 +1,4 @@
-# Exception Template for CakePHP
+# Exception plugin for CakePHP
 
 Exception class template.
 
@@ -36,9 +36,12 @@ Add the following code in AppController.php
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
 
+## Contributors
+
+- [kozo](https://github.com/kozo);
+
 ## License
 the MIT License
 
 ### ExceptionNotifierComponent original lisence
 Copyright © 2009-2010 milk1000cc, released under the MIT license.
-
