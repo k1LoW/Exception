@@ -18,7 +18,7 @@ Set `EmailConfig::error` option in app/Config/email.php.
 
 Set `CakePlugin::load('Exception', array('bootstrap' => 'notifier'));`.
 
-### ExceptionNotifierComponent
+### ExceptionNotifierComponent [Deprecated]
 
 Add the following code in AppController.php
 
