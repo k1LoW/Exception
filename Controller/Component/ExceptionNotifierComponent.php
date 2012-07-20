@@ -23,9 +23,6 @@ class ExceptionNotifierComponent extends Component {
                                'host'=>'smtp.default.com',
                                'port'=>'25',
                                );
-    public $exceptionFrom = array('exception.notifier@default.com' => 'Exception Notifier'); // exception mail from
-    public $exceptionRecipients = array();// exception mail to
-    public $subjectPrefix = '';
 
     // Exception error configuration
     public $observeNotice = true;
@@ -56,24 +53,23 @@ class ExceptionNotifierComponent extends Component {
 
     public function handleException(Exception $exception, $shutdown = false) {
         $this->_exception = $exception;
-        $email = new CakeEmail();
+        $email = new CakeEmail('error');
+        $prefix = Configure::read('ExceptionNotifier.prefix');
+        $from = $email->from();
+        if (empty($from)) {
+            $email->from('exception.notifier@default.com', 'Exception Notifier');
+        }
+        $subject = $email->subject();
+        if (empty($subject)) {
+            $email->subject($prefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . ExceptionText::getUrl() . '] ' . $exception->getMessage());
+        }
         if ($this->useSmtp) {
             $email->transport('Smtp');
             $email->config($this->smtpParams);
         }
 
-        // backward compatible
-        if (!empty($this->exceptionFrom[0])) {
-            if (empty($this->exceptionFrom[1])) {
-                $this->exceptionFrom[1] =  $this->exceptionFrom[0];
-            }
-            $this->exceptionFrom = array($this->exceptionFrom[0] => $this->exceptionFrom[1]);
-        }
-
-        $email->from($this->exceptionFrom)
-            ->to($this->exceptionRecipients)
-            ->subject($this->subjectPrefix . '['. date('Ymd H:i:s') . '][' . $this->_getSeverityAsString() . '][' . ExceptionText::getUrl() . '] ' . $this->_exception->getMessage())
-            ->send(ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine()));
+        $text = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
+        $email->send($text);
 
         // return Exception.handler
         if ($shutdown || !($this->_exception instanceof ErrorException)) {
@@ -96,8 +92,12 @@ class ExceptionNotifierComponent extends Component {
         return false;
     }
 
-    public function observe($force = false) {
-        if (!$force && Configure::read('debug') > 0) return;
+    public function observe() {
+        $force = Configure::read('ExceptionNotifier.force');
+        $debug = Configure::read('debug');
+        if (!$force && $debug > 0) {
+            return;
+        }
 
         // error_reporting(E_ALL) and don't display errors
         if (Configure::read('debug') == 0) {

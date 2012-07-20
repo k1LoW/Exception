@@ -6,23 +6,37 @@
 App::uses('ExceptionText', 'Exception.Lib');
 class ExceptionNotifierErrorHandler extends ErrorHandler {
     public static function handleError($code, $description, $file = null, $line = null, $context = null) {
+        parent::handleError($code, $description, $file, $line, $context);
 
         $errorConf = Configure::read('Error');
         if(!($errorConf['level'] & $code)){
             return;
         }
 
-        parent::handleError($code, $description, $file, $line, $context);
+        $force = Configure::read('ExceptionNotifier.force');
+        $debug = Configure::read('debug');
+        if (!$force && $debug > 0) {
+            return;
+        }
 
-        $errorInfo = self::mapErrorCode($code);
+        list($error, $log) = self::mapErrorCode($code);
 
         try{
-            $mail = new CakeEmail('error');
-            $text = ExceptionText::getText($errorInfo[0] . ':' . $description, $file, $line, $context);
-            $mail->send($text);
+            $email = new CakeEmail('error');
+            $prefix = Configure::read('ExceptionNotifier.prefix');
+            $from = $email->from();
+            if (empty($from)) {
+                $email->from('exception.notifier@default.com', 'Exception Notifier');
+            }
+            $subject = $email->subject();
+            if (empty($subject)) {
+                $email->subject($prefix . '['. date('Ymd H:i:s') . '][' . strtoupper($error) . '][' . ExceptionText::getUrl() . '] ' . $description);
+            }
+            $text = ExceptionText::getText($error . ':' . $description, $file, $line, $context);
+            return $email->send($text);
         } catch(Exception $e){
             $message = $e->getMessage();
-            CakeLog::write(LOG_ERROR, $message);
+            return CakeLog::write(LOG_ERROR, $message);
         }
     }
 }

@@ -2,9 +2,19 @@
 
 Exception class template.
 
+## Install
+
+Install 'Exception' by [recipe.php](https://github.com/k1LoW/recipe).
+
 ## Usage
 
-Install 'Exception' by [recipe.php](https://github.com/k1LoW/recipe) , and set `CakePlugin::load('Exception', array('bootstrap' => true));`
+### Exception class template
+
+Set `CakePlugin::load('Exception', array('bootstrap' => true));`.
+
+### ExceptionNotifier
+
+todo
 
 ## License
 the MIT License
