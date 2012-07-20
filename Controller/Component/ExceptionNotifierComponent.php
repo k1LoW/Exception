@@ -118,7 +118,7 @@ class ExceptionNotifierComponent extends Component {
 
     private function _getText() {
         $e = $this->_exception;
-        $params = method_exists($this->_controller, 'params') ? $this->_controller->params : array();
+        $params = Router::getRequest();
         $session = isset($_SESSION) ? $_SESSION : array();
 
         $msg = array(
