@@ -16,7 +16,7 @@ Set `EmailConfig::error` option in app/Config/email.php.
 
 ### ExceptionNotifierErrorHandler
 
-Set `CakePlugin::load('Exception', array('bootstrap' => 'notifier));`.
+Set `CakePlugin::load('Exception', array('bootstrap' => 'notifier'));`.
 
 ### ExceptionNotifierComponent
 
@@ -38,8 +38,8 @@ Add the following code in AppController.php
 
 ## Authors
 
-- [k1LoW](https://github.com/k1LoW);
-- [kozo](https://github.com/kozo);
+- [k1LoW](https://github.com/k1LoW)
+- [kozo](https://github.com/kozo)
 
 ## License
 the MIT License
