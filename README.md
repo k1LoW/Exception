@@ -6,23 +6,21 @@ Exception class template.
 
 Install 'Exception' by [recipe.php](https://github.com/k1LoW/recipe).
 
-## Usage
-
-### Exception class template
+## Usage: Exception class template
 
 Set `CakePlugin::load('Exception', array('bootstrap' => true));`.
 
-### ExceptionNotifier
+## Usage: ExceptionNotifier
 
-Set `EmailConfig::error' option in app/Config/email.php.
+Set `EmailConfig::error` option in app/Config/email.php.
 
-#### ExceptionNotifierErrorHandler
+### ExceptionNotifierErrorHandler
 
 Set `CakePlugin::load('Exception', array('bootstrap' => 'notifier));`.
 
-#### ExceptionNotifierComponent
+### ExceptionNotifierComponent
 
-Add the following code in app_controller.php
+Add the following code in AppController.php
 
     <?php
         class AppController extends Controller {
@@ -33,7 +31,7 @@ Add the following code in app_controller.php
             }
         }
 
-#### Configuration
+### Configuration
 
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
