@@ -14,7 +14,29 @@ Set `CakePlugin::load('Exception', array('bootstrap' => true));`.
 
 ### ExceptionNotifier
 
-todo
+Set `EmailConfig::error' option in app/Config/email.php.
+
+#### ExceptionNotifierErrorHandler
+
+Set `CakePlugin::load('Exception', array('bootstrap' => 'notifier));`.
+
+#### ExceptionNotifierComponent
+
+Add the following code in app_controller.php
+
+    <?php
+        class AppController extends Controller {
+            var $components = array('Exception.ExceptionNotifier');
+            
+            public function beforeFilter() {
+                $this->ExceptionNotifier->observe();
+            }
+        }
+
+#### Configuration
+
+- ExceptionNotifier.force
+- ExceptionNotifier.prefix
 
 ## License
 the MIT License
