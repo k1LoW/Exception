@@ -39,4 +39,71 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
             return CakeLog::write(LOG_ERROR, $message);
         }
     }
+
+    /**
+     * handleException
+     *
+     * @param Exception $exception
+     */
+    public static function handleException(Exception $exception){
+
+        /**
+         * @see ErrorHandler::handleException
+         */
+        $config = Configure::read('Exception');
+        if (!empty($config['log'])) {
+            $message = sprintf("[%s] %s\n%s",
+                get_class($exception),
+                $exception->getMessage(),
+                $exception->getTraceAsString()
+            );
+            CakeLog::write(LOG_ERR, $message);
+        }
+        $renderer = $config['renderer'];
+        if ($renderer !== 'ExceptionRenderer') {
+            list($plugin, $renderer) = pluginSplit($renderer, true);
+            App::uses($renderer, $plugin . 'Error');
+        }
+
+        $force = Configure::read('ExceptionNotifier.force');
+        $debug = Configure::read('debug');
+        if (!$force && $debug > 0) {
+            return;
+        }
+
+        try{
+            $email = new CakeEmail('error');
+            $prefix = Configure::read('ExceptionNotifier.prefix');
+            $from = $email->from();
+            if (empty($from)) {
+                $email->from('exception.notifier@default.com', 'Exception Notifier');
+            }
+            $subject = $email->subject();
+            if (empty($subject)) {
+                $email->subject($prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage());
+            }
+            $text = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
+            $email->send($text);
+        } catch(Exception $e){
+            $message = $e->getMessage();
+            CakeLog::write(LOG_ERROR, $message);
+        }
+
+        /**
+         * @see ErrorHandler::handleException
+         */
+        try {
+            $error = new $renderer($exception);
+            $error->render();
+        } catch (Exception $e) {
+            set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler
+            Configure::write('Error.trace', false); // trace is useless here since it's internal
+            $message = sprintf("[%s] %s\n%s", // Keeping same message format
+                get_class($e),
+                $e->getMessage(),
+                $e->getTraceAsString()
+            );
+            trigger_error($message, E_USER_ERROR);
+        }
+    }
 }

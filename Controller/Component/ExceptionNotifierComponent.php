@@ -118,7 +118,7 @@ class ExceptionNotifierComponent extends Component {
     }
 
     private function _getSeverityAsString() {
-        if (!method_exists($this->_exception, 'getSeverity')) return 'ERROR';
+        if (!method_exists($this->_exception, 'getSeverity')) return 'Exception';
 
         $errNo = $this->_exception->getSeverity();
         return array_key_exists($errNo, $this->ERR_TYPE) ? $this->ERR_TYPE[$errNo] : "(errno: {$errNo})";
