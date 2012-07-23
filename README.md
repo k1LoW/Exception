@@ -35,6 +35,8 @@ Add the following code in AppController.php
 
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
+- ExceptionNotifier.allowedException
+- ExceptionNotifier.deniedException
 
 ## Authors
 

@@ -53,10 +53,10 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         $config = Configure::read('Exception');
         if (!empty($config['log'])) {
             $message = sprintf("[%s] %s\n%s",
-                get_class($exception),
-                $exception->getMessage(),
-                $exception->getTraceAsString()
-            );
+                               get_class($exception),
+                               $exception->getMessage(),
+                               $exception->getTraceAsString()
+                               );
             CakeLog::write(LOG_ERR, $message);
         }
         $renderer = $config['renderer'];
@@ -71,22 +71,24 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
             return;
         }
 
-        try{
-            $email = new CakeEmail('error');
-            $prefix = Configure::read('ExceptionNotifier.prefix');
-            $from = $email->from();
-            if (empty($from)) {
-                $email->from('exception.notifier@default.com', 'Exception Notifier');
+        if (self::_checkAllowed($exception)) {
+            try{
+                $email = new CakeEmail('error');
+                $prefix = Configure::read('ExceptionNotifier.prefix');
+                $from = $email->from();
+                if (empty($from)) {
+                    $email->from('exception.notifier@default.com', 'Exception Notifier');
+                }
+                $subject = $email->subject();
+                if (empty($subject)) {
+                    $email->subject($prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage());
+                }
+                $text = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
+                $email->send($text);
+            } catch(Exception $e){
+                $message = $e->getMessage();
+                CakeLog::write(LOG_ERROR, $message);
             }
-            $subject = $email->subject();
-            if (empty($subject)) {
-                $email->subject($prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage());
-            }
-            $text = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
-            $email->send($text);
-        } catch(Exception $e){
-            $message = $e->getMessage();
-            CakeLog::write(LOG_ERROR, $message);
         }
 
         /**
@@ -99,11 +101,31 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
             set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler
             Configure::write('Error.trace', false); // trace is useless here since it's internal
             $message = sprintf("[%s] %s\n%s", // Keeping same message format
-                get_class($e),
-                $e->getMessage(),
-                $e->getTraceAsString()
-            );
+                               get_class($e),
+                               $e->getMessage(),
+                               $e->getTraceAsString()
+                               );
             trigger_error($message, E_USER_ERROR);
         }
+    }
+
+    /**
+     * _checkAllowed
+     *
+     */
+    private static function _checkAllowed(Exception $exception){
+        $allow = Configure::read('ExceptionNotifier.allowedException');
+        foreach ((array)$allow as $exceptionName) {
+            if ($exception instanceof $exceptionName) {
+                return true;
+            }
+        }
+        $deny = Configure::read('ExceptionNotifier.deniedException');
+        foreach ((array)$deny as $exceptionName) {
+            if ($exception instanceof $exceptionName) {
+                return false;
+            }
+        }
+        return true;
     }
 }
