@@ -3,6 +3,7 @@
  * ExceptionNotifierErrorHandler
  * @see https://github.com/kozo/cakephp_exception_notifier/blob/2.0/Lib/Error/ExceptionNotifierErrorHandler.php
  */
+App::uses('CakeEmail', 'Lib.Email.Network');
 App::uses('ExceptionText', 'Exception.Lib');
 class ExceptionNotifierErrorHandler extends ErrorHandler {
     public static function handleError($code, $description, $file = null, $line = null, $context = null) {
