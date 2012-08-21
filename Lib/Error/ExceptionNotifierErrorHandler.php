@@ -68,11 +68,8 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
 
         $force = Configure::read('ExceptionNotifier.force');
         $debug = Configure::read('debug');
-        if (!$force && $debug > 0) {
-            return;
-        }
 
-        if (self::_checkAllowed($exception)) {
+        if (($force || $debug == 0) && self::_checkAllowed($exception)) {
             try{
                 $email = new CakeEmail('error');
                 $prefix = Configure::read('ExceptionNotifier.prefix');
