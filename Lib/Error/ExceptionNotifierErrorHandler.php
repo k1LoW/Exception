@@ -3,8 +3,8 @@
  * ExceptionNotifierErrorHandler
  * @see https://github.com/kozo/cakephp_exception_notifier/blob/2.0/Lib/Error/ExceptionNotifierErrorHandler.php
  */
-App::uses('CakeEmail', 'Network/Email');
 App::uses('ExceptionText', 'Exception.Lib');
+App::uses('ExceptionMail', 'Exception.Network/Email');
 class ExceptionNotifierErrorHandler extends ErrorHandler {
     public static function handleError($code, $description, $file = null, $line = null, $context = null) {
         parent::handleError($code, $description, $file, $line, $context);
@@ -21,24 +21,10 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         }
 
         list($error, $log) = self::mapErrorCode($code);
-
-        try{
-            $email = new CakeEmail('error');
-            $prefix = Configure::read('ExceptionNotifier.prefix');
-            $from = $email->from();
-            if (empty($from)) {
-                $email->from('exception.notifier@default.com', 'Exception Notifier');
-            }
-            $subject = $email->subject();
-            if (empty($subject)) {
-                $email->subject($prefix . '['. date('Ymd H:i:s') . '][' . strtoupper($error) . '][' . ExceptionText::getUrl() . '] ' . $description);
-            }
-            $text = ExceptionText::getText($error . ':' . $description, $file, $line, $context);
-            return $email->send($text);
-        } catch(Exception $e){
-            $message = $e->getMessage();
-            return CakeLog::write(LOG_ERROR, $message);
-        }
+        $prefix = Configure::read('ExceptionNotifier.prefix');
+        $subject = $prefix . '['. date('Ymd H:i:s') . '][' . strtoupper($error) . '][' . ExceptionText::getUrl() . '] ' . $description;
+        $body = ExceptionText::getText($error . ':' . $description, $file, $line, $context);
+        return ExceptionMail::send($subject, $body);
     }
 
     /**
@@ -70,23 +56,10 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         $debug = Configure::read('debug');
 
         if (($force || $debug == 0) && self::_checkAllowed($exception)) {
-            try{
-                $email = new CakeEmail('error');
-                $prefix = Configure::read('ExceptionNotifier.prefix');
-                $from = $email->from();
-                if (empty($from)) {
-                    $email->from('exception.notifier@default.com', 'Exception Notifier');
-                }
-                $subject = $email->subject();
-                if (empty($subject)) {
-                    $email->subject($prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage());
-                }
-                $text = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
-                $email->send($text);
-            } catch(Exception $e){
-                $message = $e->getMessage();
-                CakeLog::write(LOG_ERROR, $message);
-            }
+            $prefix = Configure::read('ExceptionNotifier.prefix');
+            $subject = $prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage();
+            $body = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
+            ExceptionMail::send($subject, $body);
         }
 
         /**
