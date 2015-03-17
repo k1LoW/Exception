@@ -23,7 +23,7 @@ class ExceptionMail {
             return $email->send($body);
         } catch(Exception $e){
             $message = $e->getMessage();
-            return CakeLog::write(LOG_ERROR, $message);
+            return CakeLog::write(LOG_ERR, $message);
         }
     }
 
