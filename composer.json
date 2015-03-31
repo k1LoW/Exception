@@ -18,6 +18,7 @@
         }
     ],
     "require": {
-        "composer/installers": "*"
+        "composer/installers": "*",
+        "symfony/var-dumper": "*"
     }
 }

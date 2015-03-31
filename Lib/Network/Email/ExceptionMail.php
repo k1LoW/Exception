@@ -12,6 +12,10 @@ class ExceptionMail {
     public static function send($subject, $body){
         try{
             $email = new CakeEmail('error');
+            $html = Configure::read('ExceptionNotifier.html');
+            if ($html) {
+                $email->emailFormat('html');
+            }
             $from = $email->from();
             if (empty($from)) {
                 $email->from('exception.notifier@default.com', 'Exception Notifier');

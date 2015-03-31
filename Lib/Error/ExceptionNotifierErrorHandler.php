@@ -23,7 +23,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         list($error, $log) = self::mapErrorCode($code);
         $prefix = Configure::read('ExceptionNotifier.prefix');
         $subject = $prefix . '['. date('Ymd H:i:s') . '][' . strtoupper($error) . '][' . ExceptionText::getUrl() . '] ' . $description;
-        $body = ExceptionText::getText($error . ':' . $description, $file, $line, $context);
+        $body = ExceptionText::getBody($error . ':' . $description, $file, $line, $context);
         return ExceptionMail::send($subject, $body);
     }
 
@@ -58,7 +58,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         if (($force || $debug == 0) && self::_checkAllowed($exception)) {
             $prefix = Configure::read('ExceptionNotifier.prefix');
             $subject = $prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage();
-            $body = ExceptionText::getText($exception->getMessage(), $exception->getFile(), $exception->getLine());
+            $body = ExceptionText::getBody($exception->getMessage(), $exception->getFile(), $exception->getLine());
             ExceptionMail::send($subject, $body);
         }
 
