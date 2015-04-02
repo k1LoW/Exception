@@ -46,6 +46,7 @@ Add the following code in AppController.php
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
 - ExceptionNotifier.html
+- ExceptionNotifier.clientIpSafe
 - ExceptionNotifier.allowedException
 - ExceptionNotifier.deniedException
 
