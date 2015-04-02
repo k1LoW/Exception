@@ -4,7 +4,17 @@ Exception class template.
 
 ## Install
 
-Install 'Exception' by [recipe.php](https://github.com/k1LoW/recipe).
+composer.json:
+
+```
+{
+    "require": {
+        "ginq/ginq": "~0.2.3"
+    }
+}
+```
+
+see: https://packagist.org/packages/k1low/exception
 
 ## Usage: Exception class template
 
@@ -25,7 +35,7 @@ Add the following code in AppController.php
     <?php
         class AppController extends Controller {
             var $components = array('Exception.ExceptionNotifier');
-            
+
             public function beforeFilter() {
                 $this->ExceptionNotifier->observe();
             }
@@ -35,6 +45,7 @@ Add the following code in AppController.php
 
 - ExceptionNotifier.force
 - ExceptionNotifier.prefix
+- ExceptionNotifier.html
 - ExceptionNotifier.allowedException
 - ExceptionNotifier.deniedException
 
