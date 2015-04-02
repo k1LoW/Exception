@@ -1,6 +1,5 @@
 <?php
 use Symfony\Component\VarDumper\Cloner\VarCloner;
-use Symfony\Component\VarDumper\Dumper\CliDumper;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 
 class ExceptionText {
@@ -35,7 +34,7 @@ class ExceptionText {
             '-------------------------------',
             '',
             '* URL       : ' . self::getUrl(),
-            '* IP address: ' . env('REMOTE_ADDR'),
+            '* Client IP: ' . self::getClientIp(),
             '* Parameters: ' . trim(print_r($params, true)),
             '* Cake root : ' . APP,
             '',
@@ -95,8 +94,8 @@ class ExceptionText {
             '',
             '<h3>URL</h3>',
             self::getUrl(),
-            '<h3>IP address</h3>',
-            env('REMOTE_ADDR'),
+            '<h3>Client IP</h3>',
+            self::getClientIp(),
             '<h3>Parameters</h3>',
             self::dumper($params),
             '<h3>Cake root</h3>',
@@ -151,5 +150,35 @@ class ExceptionText {
 
         $protocol = array_key_exists('HTTPS', $_SERVER) ? 'https' : 'http';
         return $protocol . '://' . env('HTTP_HOST') . env('REQUEST_URI');
+    }
+
+    /**
+     * getClientIp
+     *
+     */
+    public static function getClientIp(){
+        $safe = Configure::read('ExceptionNotifier.clientIpSafe');
+        if (!$safe && env('HTTP_X_FORWARDED_FOR')) {
+            $env = 'HTTP_X_FORWARDED_FOR';
+            $ipaddr = preg_replace('/(?:,.*)/', '', env('HTTP_X_FORWARDED_FOR'));
+        } else {
+            if (env('HTTP_CLIENT_IP')) {
+                $env = 'HTTP_CLIENT_IP';
+                $ipaddr = env('HTTP_CLIENT_IP');
+            } else {
+                $env = 'REMOTE_ADDR';
+                $ipaddr = env('REMOTE_ADDR');
+            }
+        }
+
+        if (env('HTTP_CLIENTADDRESS')) {
+            $tmpipaddr = env('HTTP_CLIENTADDRESS');
+
+            if (!empty($tmpipaddr)) {
+                $env = 'HTTP_CLIENTADDRESS';
+                $ipaddr = preg_replace('/(?:,.*)/', '', $tmpipaddr);
+            }
+        }
+        return trim($ipaddr) . ' [' . $env . ']';
     }
 }
