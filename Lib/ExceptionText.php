@@ -34,7 +34,8 @@ class ExceptionText {
             '-------------------------------',
             '',
             '* URL       : ' . self::getUrl(),
-            '* Client IP: ' . self::getClientIp(),
+            '* Client IP : ' . self::getClientIp(),
+            '* Referer   : ' . env('HTTP_REFERER'),
             '* Parameters: ' . trim(print_r($params, true)),
             '* Cake root : ' . APP,
             '',
@@ -96,6 +97,8 @@ class ExceptionText {
             self::getUrl(),
             '<h3>Client IP</h3>',
             self::getClientIp(),
+            '<h3>Referer</h3>',
+            env('HTTP_REFERER'),
             '<h3>Parameters</h3>',
             self::dumper($params),
             '<h3>Cake root</h3>',
@@ -181,4 +184,6 @@ class ExceptionText {
         }
         return trim($ipaddr) . ' [' . $env . ']';
     }
+
+
 }
