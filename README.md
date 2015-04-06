@@ -9,7 +9,7 @@ composer.json:
 ```
 {
     "require": {
-        "ginq/ginq": "~0.2.3"
+        "k1low/exception": "*"
     }
 }
 ```
