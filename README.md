@@ -49,6 +49,7 @@ Add the following code in AppController.php
 - ExceptionNotifier.clientIpSafe
 - ExceptionNotifier.allowedException
 - ExceptionNotifier.deniedException
+- ExceptionNotifier.deniedStatusCode
 
 ## Authors
 

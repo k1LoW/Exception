@@ -7,6 +7,7 @@ App::uses('ExceptionText', 'Exception.Lib');
 App::uses('ExceptionMail', 'Exception.Network/Email');
 class ExceptionNotifierErrorHandler extends ErrorHandler {
     public static function handleError($code, $description, $file = null, $line = null, $context = null) {
+
         parent::handleError($code, $description, $file, $line, $context);
 
         $errorConf = Configure::read('Error');
@@ -97,6 +98,13 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
                 return false;
             }
         }
+        $codes = Configure::read('ExceptionNotifier.deniedStatusCode');
+        foreach ((array)$codes as $code) {
+            if ($exception->getCode() == $code) {
+                return false;
+            }
+        }
+
         return true;
     }
 }
