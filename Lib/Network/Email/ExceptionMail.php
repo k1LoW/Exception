@@ -1,7 +1,8 @@
 <?php
 App::uses('CakeEmail', 'Network/Email');
 App::uses('ExceptionText', 'Exception.Lib');
-class ExceptionMail {
+class ExceptionMail
+{
 
     /**
      * send
@@ -9,7 +10,8 @@ class ExceptionMail {
      * @param $subject
      * @param $body
      */
-    public static function send($subject, $body){
+    public static function send($subject, $body)
+    {
         try{
             $email = new CakeEmail('error');
             $html = Configure::read('ExceptionNotifier.html');

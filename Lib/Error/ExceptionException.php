@@ -3,9 +3,11 @@
  * ExceptionException
  *
  */
-class ExceptionException extends CakeException {
+class ExceptionException extends CakeException
+{
 
-    public function __construct($message = null, $code = 500) {
+    public function __construct($message = null, $code = 500)
+    {
         if (empty($message)) {
             $message = __('Exception Error.');
         }

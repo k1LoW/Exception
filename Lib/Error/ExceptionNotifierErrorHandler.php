@@ -5,8 +5,10 @@
  */
 App::uses('ExceptionText', 'Exception.Lib');
 App::uses('ExceptionMail', 'Exception.Network/Email');
-class ExceptionNotifierErrorHandler extends ErrorHandler {
-    public static function handleError($code, $description, $file = null, $line = null, $context = null) {
+class ExceptionNotifierErrorHandler extends ErrorHandler
+{
+    public static function handleError($code, $description, $file = null, $line = null, $context = null)
+    {
 
         parent::handleError($code, $description, $file, $line, $context);
 
@@ -33,7 +35,8 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
      *
      * @param Exception $exception
      */
-    public static function handleException(Exception $exception){
+    public static function handleException(Exception $exception)
+    {
 
         /**
          * @see ErrorHandler::handleException
@@ -41,10 +44,10 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
         $config = Configure::read('Exception');
         if (!empty($config['log'])) {
             $message = sprintf("[%s] %s\n%s",
-                               get_class($exception),
-                               $exception->getMessage(),
-                               $exception->getTraceAsString()
-                               );
+            get_class($exception),
+            $exception->getMessage(),
+            $exception->getTraceAsString()
+            );
             CakeLog::write(LOG_ERR, $message);
         }
         $renderer = $config['renderer'];
@@ -73,10 +76,10 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
             set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler
             Configure::write('Error.trace', false); // trace is useless here since it's internal
             $message = sprintf("[%s] %s\n%s", // Keeping same message format
-                               get_class($e),
-                               $e->getMessage(),
-                               $e->getTraceAsString()
-                               );
+            get_class($e),
+            $e->getMessage(),
+            $e->getTraceAsString()
+            );
             trigger_error($message, E_USER_ERROR);
         }
     }
@@ -85,7 +88,8 @@ class ExceptionNotifierErrorHandler extends ErrorHandler {
      * _checkAllowed
      *
      */
-    private static function _checkAllowed(Exception $exception){
+    private static function _checkAllowed(Exception $exception)
+    {
         $allow = Configure::read('ExceptionNotifier.allowedException');
         foreach ((array)$allow as $exceptionName) {
             if ($exception instanceof $exceptionName) {
