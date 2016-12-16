@@ -5,6 +5,12 @@
  */
 App::uses('ExceptionText', 'Exception.Lib');
 App::uses('ExceptionMail', 'Exception.Network/Email');
+App::uses('ExceptionFatalErrorException', 'Exception.Lib/Error');
+App::uses('ExceptionStrictException', 'Exception.Lib/Error');
+App::uses('ExceptionNoticeException', 'Exception.Lib/Error');
+App::uses('ExceptionWarningException', 'Exception.Lib/Error');
+App::uses('ExceptionDeprecatedException', 'Exception.Lib/Error');
+
 class ExceptionNotifierErrorHandler extends ErrorHandler
 {
     public static function handleError($code, $description, $file = null, $line = null, $context = null)
@@ -17,17 +23,15 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
             return;
         }
 
-        $force = Configure::read('ExceptionNotifier.force');
-        $debug = Configure::read('debug');
-        if (!$force && $debug > 0) {
+        if (!self::notifyAllowed()) {
             return;
         }
 
         list($error, $log) = self::mapErrorCode($code);
-        $prefix = Configure::read('ExceptionNotifier.prefix');
-        $subject = $prefix . '['. date('Ymd H:i:s') . '][' . strtoupper($error) . '][' . ExceptionText::getUrl() . '] ' . $description;
-        $body = ExceptionText::getBody($error . ':' . $description, $file, $line, $context);
-        return ExceptionMail::send($subject, $body);
+
+        $class = 'Exception' . str_replace(' ', '', $error) . 'Exception';
+
+        self::handleException(new $class($description, 0, $code, $file, $line));
     }
 
     /**
@@ -56,14 +60,9 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
             App::uses($renderer, $plugin . 'Error');
         }
 
-        $force = Configure::read('ExceptionNotifier.force');
-        $debug = Configure::read('debug');
-
-        if (($force || $debug == 0) && self::_checkAllowed($exception)) {
-            $prefix = Configure::read('ExceptionNotifier.prefix');
-            $subject = $prefix . '['. date('Ymd H:i:s') . '][Exception][' . ExceptionText::getUrl() . '] ' . $exception->getMessage();
-            $body = ExceptionText::getBody($exception->getMessage(), $exception->getFile(), $exception->getLine());
-            ExceptionMail::send($subject, $body);
+        if (self::notifyAllowed() && self::checkAllowed($exception)) {
+            $trace = Debugger::trace(array('start' => 2, 'format' => 'base'));
+            self::execute($exception, $trace);
         }
 
         /**
@@ -85,10 +84,27 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
     }
 
     /**
-     * _checkAllowed
+     * execute
      *
      */
-    private static function _checkAllowed(Exception $exception)
+    public static function execute(Exception $exception, $trace){
+        $prefix = Configure::read('ExceptionNotifier.prefix');
+        $subject = $prefix . '['. date('Ymd H:i:s') . '][' . get_class($exception) . '][' . ExceptionText::getUrl() . '] ' . $exception->getMessage();
+        $body = ExceptionText::getBody($exception->getMessage(), $exception->getFile(), $exception->getLine());
+        ExceptionMail::send($subject, $body);
+    }
+
+    private static function notifyAllowed() {
+        $force = Configure::read('ExceptionNotifier.force');
+        $debug = Configure::read('debug');
+        return ($force || $debug == 0);
+    }
+
+    /**
+     * checkAllowed
+     *
+     */
+    private static function checkAllowed(Exception $exception)
     {
         $allow = Configure::read('ExceptionNotifier.allowedException');
         foreach ((array)$allow as $exceptionName) {
