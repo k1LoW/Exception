@@ -88,10 +88,16 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
      *
      */
     public static function execute(Exception $exception, $trace){
-        $prefix = Configure::read('ExceptionNotifier.prefix');
-        $subject = $prefix . '['. date('Ymd H:i:s') . '][' . get_class($exception) . '][' . ExceptionText::getUrl() . '] ' . $exception->getMessage();
-        $body = ExceptionText::getBody($exception->getMessage(), $exception->getFile(), $exception->getLine());
-        ExceptionMail::send($subject, $body);
+        $error = array(
+            'exception' => $exception,
+            'trace' => $trace,
+            'params' => Router::getRequest(),
+            'environment' => $_SERVER,
+            'session' => $session = isset($_SESSION) ? $_SESSION : array(),
+            'cookie' => $_COOKIE,
+        );
+
+        ExceptionMail::send($error);
     }
 
     private static function notifyAllowed() {
