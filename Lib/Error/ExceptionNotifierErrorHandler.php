@@ -4,7 +4,6 @@
  * @see https://github.com/kozo/cakephp_exception_notifier/blob/2.0/Lib/Error/ExceptionNotifierErrorHandler.php
  */
 App::uses('ExceptionText', 'Exception.Lib');
-App::uses('ExceptionMail', 'Exception.Network/Email');
 App::uses('ExceptionFatalErrorException', 'Exception.Lib/Error');
 App::uses('ExceptionStrictException', 'Exception.Lib/Error');
 App::uses('ExceptionNoticeException', 'Exception.Lib/Error');
@@ -97,7 +96,20 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
             'cookie' => $_COOKIE,
         );
 
-        ExceptionMail::send($error);
+        $senders = Configure::read('ExceptionNotifier.senders');
+
+        if (!is_array($senders)) {
+            return;
+        }
+
+        foreach ($senders as $sender) {
+            if (is_array($sender)) {
+                App::uses($sender[0], $sender[1]);
+                $sender[0]::send($error);
+            } else {
+                $sender::send($error);
+            }
+        }
     }
 
     private static function notifyAllowed() {

@@ -50,6 +50,7 @@ Add the following code in AppController.php
 - ExceptionNotifier.allowedException
 - ExceptionNotifier.deniedException
 - ExceptionNotifier.deniedStatusCode
+- ExceptionNotifier.senders
 
 ## Authors
 
