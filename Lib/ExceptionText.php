@@ -2,11 +2,13 @@
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 
-class ExceptionText {
+class ExceptionText
+{
 
     private static $handler;
 
-    public static function getBody($message, $file, $line, $context = null){
+    public static function getBody($message, $file, $line, $context = null)
+    {
         $html = Configure::read('ExceptionNotifier.html');
         if ($html) {
             return self::getHtml($message, $file, $line, $context);
@@ -14,7 +16,8 @@ class ExceptionText {
         return self::getText($message, $file, $line, $context);
     }
 
-    public static function getText($message, $file, $line, $context = null){
+    public static function getText($message, $file, $line, $context = null)
+    {
         $params = Router::getRequest();
         $trace = Debugger::trace(array('start' => 2, 'format' => 'base'));
         $session = isset($_SESSION) ? $_SESSION : array();
@@ -63,12 +66,13 @@ class ExceptionText {
             '',
             trim(print_r($context, true)),
             '',
-            );
+        );
 
         return join("\n", $msg);
     }
 
-    public static function getHtml($message, $file, $line, $context = null){
+    public static function getHtml($message, $file, $line, $context = null)
+    {
         $params = Router::getRequest();
         $trace = Debugger::trace(array('start' => 2, 'format' => 'base'));
         $session = isset($_SESSION) ? $_SESSION : array();
@@ -128,12 +132,13 @@ class ExceptionText {
             '',
             self::dumper($context),
             '',
-            );
+        );
 
         return join("\n", $msg);
     }
 
-    public static function dumper($obj) {
+    public static function dumper($obj)
+    {
         ob_start();
         $cloner = new VarCloner();
         $dumper = new HtmlDumper();
@@ -146,7 +151,8 @@ class ExceptionText {
         return $ret;
     }
 
-    public static function getUrl() {
+    public static function getUrl()
+    {
         if (PHP_SAPI == 'cli') {
             return '';
         }
@@ -159,7 +165,8 @@ class ExceptionText {
      * getClientIp
      *
      */
-    public static function getClientIp(){
+    public static function getClientIp()
+    {
         $safe = Configure::read('ExceptionNotifier.clientIpSafe');
         if (!$safe && env('HTTP_X_FORWARDED_FOR')) {
             $env = 'HTTP_X_FORWARDED_FOR';

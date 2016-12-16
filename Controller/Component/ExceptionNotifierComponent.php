@@ -8,21 +8,22 @@ App::uses('Component', 'Controller');
 App::uses('CakeEmail', 'Network/Email');
 App::uses('ErrorHandler', 'Error');
 App::uses('ExceptionText', 'Exception.Lib');
-class ExceptionNotifierComponent extends Component {
+class ExceptionNotifierComponent extends Component
+{
 
     public $ERR_TYPE = array(
-                             E_ERROR => 'FATAL',
-                             E_WARNING => 'WARNING',
-                             E_NOTICE => 'NOTICE',
-                             E_STRICT => 'STRICT'
-                             );
+        E_ERROR => 'FATAL',
+        E_WARNING => 'WARNING',
+        E_NOTICE => 'NOTICE',
+        E_STRICT => 'STRICT'
+    );
 
     // Mail configuration
     public $useSmtp = false;
     public $smtpParams = array(
-                               'host'=>'smtp.default.com',
-                               'port'=>'25',
-                               );
+        'host'=>'smtp.default.com',
+        'port'=>'25',
+    );
 
     // Exception error configuration
     public $observeNotice = true;
@@ -34,11 +35,13 @@ class ExceptionNotifierComponent extends Component {
     private $_controller;
     private $_exception;
 
-    public function initialize(Controller $controller) {
+    public function initialize(Controller $controller)
+    {
         $this->_controller = $controller;
     }
 
-    public function handleShutdown() {
+    public function handleShutdown()
+    {
         $error = error_get_last();
         switch ($error['type']) {
         case E_ERROR:
@@ -51,7 +54,8 @@ class ExceptionNotifierComponent extends Component {
         }
     }
 
-    public function handleException(Exception $exception, $shutdown = false) {
+    public function handleException(Exception $exception, $shutdown = false)
+    {
         $this->_exception = $exception;
         $email = new CakeEmail('error');
         $prefix = Configure::read('ExceptionNotifier.prefix');
@@ -83,7 +87,8 @@ class ExceptionNotifierComponent extends Component {
         }
     }
 
-    public function handleError($code, $description, $file = null, $line = null, $context = null) {
+    public function handleError($code, $description, $file = null, $line = null, $context = null)
+    {
         $cakePath = CAKE_CORE_INCLUDE_PATH . DS . CAKE;
         if (ErrorHandler::handleError($code, $description, $file, $line, $context) !== false && !preg_match('!^' . $cakePath . '!', $file)) {
             $this->handleException(new ErrorException($description, 0, $code, $file, $line));
@@ -92,7 +97,8 @@ class ExceptionNotifierComponent extends Component {
         return false;
     }
 
-    public function observe() {
+    public function observe()
+    {
         $force = Configure::read('ExceptionNotifier.force');
         $debug = Configure::read('debug');
         if (!$force && $debug > 0) {
@@ -117,7 +123,8 @@ class ExceptionNotifierComponent extends Component {
         if ($errTypes) set_error_handler(array($this, 'handleError'), $errTypes);
     }
 
-    private function _getSeverityAsString() {
+    private function _getSeverityAsString()
+    {
         if (!method_exists($this->_exception, 'getSeverity')) return 'Exception';
 
         $errNo = $this->_exception->getSeverity();

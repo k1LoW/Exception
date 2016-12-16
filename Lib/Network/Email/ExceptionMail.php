@@ -1,15 +1,20 @@
 <?php
 App::uses('CakeEmail', 'Network/Email');
 App::uses('ExceptionText', 'Exception.Lib');
-class ExceptionMail {
+App::uses('ExceptionSenderInterface', 'Exception.Lib');
+class ExceptionMail implements ExceptionSenderInterface
+{
 
     /**
      * send
      *
-     * @param $subject
-     * @param $body
+     * @param $error
      */
-    public static function send($subject, $body){
+    public static function send($error)
+    {
+        $prefix = Configure::read('ExceptionNotifier.prefix');
+        $subject = $prefix . '['. date('Ymd H:i:s') . '][' . get_class($error['exception']) . '][' . ExceptionText::getUrl() . '] ' . $error['exception']->getMessage();
+        $body = ExceptionText::getBody($error['exception']->getMessage(), $error['exception']->getFile(), $error['exception']->getLine());
         try{
             $email = new CakeEmail('error');
             $html = Configure::read('ExceptionNotifier.html');

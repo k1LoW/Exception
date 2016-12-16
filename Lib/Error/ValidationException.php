@@ -6,9 +6,11 @@ App::uses('ExceptionException', 'Exception.Error');
  *
  * jpn:Modelでバリデーションエラーが発生した場合に投げられる例外
  */
-class ValidationException extends ExceptionException {
+class ValidationException extends ExceptionException
+{
 
-    public function __construct($message = null, $code = 422) {
+    public function __construct($message = null, $code = 422)
+    {
         if (empty($message)) {
             $message = __('Validation Error.');
         }
