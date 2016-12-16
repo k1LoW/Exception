@@ -30,7 +30,8 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
 
         $class = 'Exception' . str_replace(' ', '', $error) . 'Exception';
 
-        self::handleException(new $class($description, 0, $code, $file, $line));
+        $trace = Debugger::trace(array('start' => 2, 'format' => 'base'));
+        self::execute(new $class($description, 0, $code, $file, $line), $trace);
     }
 
     /**
