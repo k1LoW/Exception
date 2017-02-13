@@ -31,7 +31,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
         $class = 'Exception' . str_replace(' ', '', $error) . 'Exception';
 
         $trace = Debugger::trace(array('start' => 2, 'format' => 'base'));
-        self::execute(new $class($description, 0, $code, $file, $line), $trace);
+        self::execute(new $class($description, 0, $code, $file, $line), $trace, $context);
     }
 
     /**
@@ -87,7 +87,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
      * execute
      *
      */
-    public static function execute(Exception $exception, $trace){
+    public static function execute(Exception $exception, $trace, $context = array()){
         $error = array(
             'exception' => $exception,
             'trace' => $trace,
@@ -95,6 +95,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
             'environment' => $_SERVER,
             'session' => $session = isset($_SESSION) ? $_SESSION : array(),
             'cookie' => $_COOKIE,
+            'context' => $context,
         );
 
         $senders = Configure::read('ExceptionNotifier.senders');
