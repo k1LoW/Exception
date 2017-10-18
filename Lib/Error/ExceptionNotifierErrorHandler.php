@@ -39,7 +39,7 @@ class ExceptionNotifierErrorHandler extends ErrorHandler
      *
      * @param Exception $exception
      */
-    public static function handleException(Exception $exception)
+    public static function handleException($exception)
     {
 
         /**
