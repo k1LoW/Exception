@@ -19,7 +19,7 @@
   ],
   "require": {
     "php": ">=5.3.3",
-    "cakephp/cakephp": "~2.0,<2.8",
+    "cakephp/cakephp": ">=2.8",
     "composer/installers": "*",
     "symfony/var-dumper": "*"
   }
